@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gleya - Dev @rskl411_ </title>
+  <meta name="description" content="Personal aesthetic website of Gleya">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary: #F8D7DA;
+      --secondary: #F5E6DA;
+      --background: #FFFDF9;
+      --accent: #D9A5A5;
+      --text: #4A3B39;
+      --text-light: #7A6B69;
+      --glass: rgba(255, 255, 255, 0.75);
+      --shadow: rgba(74, 59, 57, 0.08);
+      --shadow-lg: rgba(74, 59, 57, 0.15);
+    }
+    [data-theme="dark"] {
+      --primary: #3D3552;
+      --secondary: #2A2438;
+      --background: #1A1625;
+      --accent: #C9A5B9;
+      --text: #F5E6E8;
+      --text-light: #B8A5A7;
+      --glass: rgba(61, 53, 82, 0.8);
+      --shadow: rgba(0, 0, 0, 0.2);
+      --shadow-lg: rgba(0, 0, 0, 0.3);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+      transition: background 0.4s, color 0.4s;
+    }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; font-weight: 600; }
+    a { text-decoration: none; color: inherit; }
+    img { max-width: 100%; display: block; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Loading */
+    .loading-screen {
+      position: fixed; inset: 0; background: var(--background);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999; transition: opacity 0.5s;
+    }
+    .loading-screen.hide { opacity: 0; pointer-events: none; }
+    .loader-circle {
+      width: 50px; height: 50px; border: 3px solid var(--secondary);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Navbar */
+    .navbar {
+      position: fixed; top: 0; left: 0; width: 100%; padding: 20px 0;
+      z-index: 1000; transition: all 0.3s;
+    }
+    .navbar.scrolled {
+      background: var(--glass); backdrop-filter: blur(15px);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .navbar-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; }
+    .nav-menu { display: flex; list-style: none; gap: 35px; }
+    .nav-link { font-size: 0.9rem; font-weight: 500; position: relative; padding: 5px 0; transition: color 0.3s; }
+    .nav-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--accent); transition: width 0.3s; }
+    .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    .nav-link:hover, .nav-link.active { color: var(--accent); }
+    .nav-right { display: flex; align-items: center; gap: 15px; }
+    .theme-toggle {
+      width: 42px; height: 42px; border-radius: 50%; background: var(--glass);
+      border: 1px solid var(--primary); cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 1rem; transition: all 0.3s;
+    }
+    .theme-toggle:hover { background: var(--primary); }
+
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
+    .hamburger span { width: 25px; height: 2px; background: var(--text); transition: 0.3s; }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    .mobile-menu {
+      position: fixed; top: 0; right: -100%; width: 280px; height: 100%;
+      background: var(--background); padding: 100px 40px; transition: right 0.4s;
+      z-index: 999; box-shadow: -5px 0 20px var(--shadow-lg);
+    }
+    .mobile-menu.active { right: 0; }
+    .mobile-menu .nav-menu { flex-direction: column; gap: 25px; }
+    .mobile-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden; transition: 0.3s; z-index: 998; }
+    .mobile-overlay.active { opacity: 1; visibility: visible; }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh; display: flex; align-items: center;
+      padding: 140px 0 100px; position: relative; overflow: hidden;
+    }
+    .hero-bg { position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: linear-gradient(135deg, var(--primary) 0%, transparent 100%); opacity: 0.4; z-index: -1; border-radius: 0 0 0 100%; }
+    .hero-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; z-index: -1; animation: float 10s infinite alternate; }
+    .blob-1 { width: 400px; height: 400px; background: var(--primary); top: 10%; right: 10%; }
+    .blob-2 { width: 300px; height: 300px; background: var(--secondary); bottom: 10%; left: 5%; animation-delay: -5s; }
+    @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(20px, -20px) scale(1.05); } }
+
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .hero-content { animation: fadeUp 1s ease forwards; opacity: 0; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .hero-greeting { font-size: 1.1rem; color: var(--text-light); letter-spacing: 2px; margin-bottom: 10px; }
+    .hero-name { font-size: clamp(3rem, 6vw, 4.5rem); font-weight: 700; margin-bottom: 15px; line-height: 1.1; }
+    .hero-name .heart { color: var(--accent); }
+    .hero-tagline { font-size: 1.2rem; color: var(--accent); margin-bottom: 20px; font-weight: 500; }
+    .hero-desc { font-size: 1rem; color: var(--text-light); margin-bottom: 35px; max-width: 450px; }
+    
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px; padding: 14px 32px;
+      border-radius: 50px; font-size: 0.95rem; font-weight: 500; cursor: pointer;
+      transition: all 0.3s; border: none; font-family: 'Poppins', sans-serif;
+    }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 10px 30px rgba(217, 165, 165, 0.4); }
+    .btn-primary:hover { transform: translateY(-3px); }
+    .btn-secondary { background: transparent; color: var(--text); border: 2px solid var(--primary); }
+    .btn-secondary:hover { background: var(--primary); transform: translateY(-3px); }
+
+    .hero-image { position: relative; animation: fadeUp 1s ease 0.3s forwards; opacity: 0; }
+    .hero-img-wrapper { position: relative; max-width: 400px; margin: 0 auto; }
+    .hero-img-bg {
+      position: absolute; top: -20px; left: -20px; right: 20px; bottom: 20px;
+      background: var(--primary); border-radius: 50% 50% 50% 70% / 50% 50% 70% 50%;
+      z-index: -1; animation: morph 8s infinite alternate;
+    }
+    @keyframes morph { 0% { border-radius: 50% 50% 50% 70% / 50% 50% 70% 50%; } 100% { border-radius: 70% 50% 50% 50% / 50% 70% 50% 50%; } }
+    .hero-image img { width: 100%; height: 480px; object-fit: cover; border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%; box-shadow: 0 20px 50px var(--shadow-lg); }
+
+    .decor { position: absolute; z-index: 2; opacity: 0.6; animation: float 6s ease-in-out infinite; pointer-events: none; }
+    .decor-1 { top: 15%; left: 5%; }
+    .decor-2 { bottom: 20%; right: 5%; animation-delay: 2s; }
+
+    .section-header { text-align: center; margin-bottom: 60px; }
+    .section-subtitle { font-size: 0.9rem; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px; }
+    .section-title { font-size: clamp(2rem, 4vw, 2.8rem); margin-bottom: 15px; }
+    .section-desc { font-size: 1rem; color: var(--text-light); max-width: 500px; margin: 0 auto; }
+
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s ease; }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+
+    .features { padding: 100px 0; background: var(--secondary); }
+    .features-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; }
+    .feature-card { background: var(--glass); padding: 40px 25px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.2); transition: all 0.4s; }
+    .feature-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px var(--shadow-lg); }
+    .feature-icon { width: 70px; height: 70px; margin: 0 auto 20px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--accent); transition: transform 0.4s; }
+    .feature-card:hover .feature-icon { transform: scale(1.1) rotate(10deg); }
+    .feature-title { font-size: 1.2rem; margin-bottom: 12px; }
+    .feature-desc { font-size: 0.9rem; color: var(--text-light); }
+
+    .about { padding: 120px 0; }
+    .about-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+    .about-image { position: relative; }
+    .about-image img { height: 550px; width: 100%; object-fit: cover; border-radius: 200px 200px 30px 30px; box-shadow: 0 30px 60px var(--shadow-lg); }
+    .about-decor { position: absolute; bottom: -20px; right: -20px; width: 200px; height: 200px; background: var(--primary); border-radius: 50%; z-index: -1; opacity: 0.6; }
+    .about-label { color: var(--accent); letter-spacing: 3px; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 10px; }
+    .about-title { font-size: 2.5rem; margin-bottom: 25px; }
+    .about-text { color: var(--text-light); margin-bottom: 20px; line-height: 1.9; }
+    .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 50px; padding-top: 40px; border-top: 1px solid var(--primary); }
+    .stat-item { text-align: center; }
+    .stat-number { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; color: var(--accent); }
+    .stat-label { font-size: 0.9rem; color: var(--text-light); }
+
+    .gallery { padding: 100px 0; background: var(--secondary); }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .gallery-item { position: relative; overflow: hidden; border-radius: 20px; cursor: pointer; }
+    .gallery-item:nth-child(1) { grid-row: span 2; }
+    .gallery-item:nth-child(4) { grid-column: span 2; }
+    .gallery-item img { width: 100%; height: 100%; min-height: 250px; object-fit: cover; transition: transform 0.5s; }
+    .gallery-item:hover img { transform: scale(1.1); }
+    .gallery-overlay { position: absolute; inset: 0; background: linear-gradient(transparent, rgba(74, 59, 57, 0.7)); opacity: 0; transition: opacity 0.3s; display: flex; align-items: flex-end; padding: 20px; }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay i { color: #fff; font-size: 1.5rem; background: var(--glass); padding: 15px; border-radius: 50%; }
+
+    .journal { padding: 120px 0; }
+    .journal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .journal-card { background: var(--glass); border-radius: 24px; overflow: hidden; border: 1px solid var(--primary); transition: transform 0.4s; }
+    .journal-card:hover { transform: translateY(-10px); box-shadow: 0 20px 50px var(--shadow-lg); }
+    .journal-image { height: 220px; overflow: hidden; }
+    .journal-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .journal-card:hover .journal-image img { transform: scale(1.1); }
+    .journal-content { padding: 30px; }
+    .journal-date { font-size: 0.85rem; color: var(--accent); margin-bottom: 12px; }
+    .journal-title { font-size: 1.3rem; margin-bottom: 15px; }
+    .journal-excerpt { font-size: 0.95rem; color: var(--text-light); margin-bottom: 20px; line-height: 1.7; }
+    .journal-link { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 500; transition: gap 0.3s; }
+    .journal-link:hover { gap: 12px; }
+
+    .portfolio { padding: 100px 0; background: var(--secondary); }
+    .portfolio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+    .portfolio-item { position: relative; border-radius: 24px; overflow: hidden; height: 400px; cursor: pointer; }
+    .portfolio-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s; }
+    .portfolio-item:hover img { transform: scale(1.1); }
+    .portfolio-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 40px 30px; background: linear-gradient(transparent, rgba(74, 59, 57, 0.85)); transform: translateY(50px); opacity: 0; transition: all 0.4s; }
+    .portfolio-item:hover .portfolio-info { transform: translateY(0); opacity: 1; }
+    .portfolio-category { font-size: 0.85rem; color: var(--primary); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
+    .portfolio-title { font-size: 1.5rem; color: #fff; }
+
+    .quote-section { padding: 140px 0; position: relative; overflow: hidden; }
+    .quote-bg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; background: var(--primary); border-radius: 50%; opacity: 0.3; filter: blur(100px); z-index: -1; }
+    .quote-card { max-width: 800px; margin: 0 auto; text-align: center; padding: 60px; background: var(--glass); backdrop-filter: blur(20px); border-radius: 40px; border: 1px solid rgba(255,255,255,0.2); }
+    .quote-icon { font-size: 4rem; color: var(--accent); opacity: 0.5; margin-bottom: 15px; }
+    .quote-text { font-size: clamp(1.8rem, 4vw, 2.5rem); font-style: italic; margin-bottom: 20px; line-height: 1.5; }
+    .quote-author { font-size: 1rem; color: var(--accent); }
+
+    /* SPOTIFY SECTION */
+    .spotify-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    }
+
+    .spotify-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .spotify-title {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      margin-bottom: 15px;
+      color: var(--text);
+    }
+
+    .spotify-divider {
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 0 auto 20px;
+      border-radius: 5px;
+      opacity: 0.7;
+    }
+
+    .spotify-desc {
+      color: var(--text-light);
+      max-width: 500px;
+      margin: 0 auto;
+      font-size: 1rem;
+    }
+
+    .spotify-wrapper {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .spotify-card {
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 25px 60px var(--shadow-lg);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .spotify-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 35px 70px var(--shadow-lg);
+    }
+
+    .spotify-iframe-container {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .spotify-iframe {
+      border-radius: 16px;
+      display: block;
+    }
+
+    .instagram-feed { padding: 100px 0; }
+    .insta-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; }
+    .insta-item { position: relative; aspect-ratio: 1; border-radius: 16px; overflow: hidden; cursor: pointer; }
+    .insta-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+    .insta-item:hover img { transform: scale(1.1); }
+    .insta-overlay { position: absolute; inset: 0; background: rgba(217, 165, 165, 0.8); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+    .insta-item:hover .insta-overlay { opacity: 1; }
+    .insta-overlay i { font-size: 2rem; color: #fff; }
+
+    .contact { padding: 120px 0; background: var(--secondary); }
+    .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
+    .contact-title { font-size: 2.5rem; margin-bottom: 25px; }
+    .contact-text { color: var(--text-light); margin-bottom: 40px; line-height: 1.8; }
+    .contact-details { display: flex; flex-direction: column; gap: 25px; }
+    .contact-item { display: flex; align-items: center; gap: 20px; }
+    .contact-icon { width: 55px; height: 55px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.2rem; flex-shrink: 0; }
+    .contact-item h4 { font-size: 1rem; margin-bottom: 4px; }
+    .contact-item p { font-size: 0.95rem; color: var(--text-light); }
+    .contact-form-wrapper { background: var(--glass); padding: 50px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.2); }
+    .form-group { margin-bottom: 25px; }
+    .form-group label { display: block; font-size: 0.9rem; margin-bottom: 8px; font-weight: 500; }
+    .form-control { width: 100%; padding: 16px 20px; border: 2px solid var(--primary); border-radius: 15px; font-family: 'Poppins', sans-serif; font-size: 1rem; background: var(--background); color: var(--text); transition: all 0.3s; }
+    .form-control:focus { outline: none; border-color: var(--accent); }
+
+    .footer { padding: 60px 0 30px; background: var(--text); color: var(--primary); }
+    .footer-top { display: flex; justify-content: space-between; align-items: center; padding-bottom: 40px; border-bottom: 1px solid rgba(248, 215, 218, 0.2); margin-bottom: 30px; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; }
+    .footer-socials { display: flex; gap: 15px; }
+    .footer-social { width: 45px; height: 45px; border-radius: 50%; background: rgba(248, 215, 218, 0.1); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.3s; }
+    .footer-social:hover { background: var(--accent); color: #fff; transform: translateY(-5px); }
+    .footer-bottom { text-align: center; }
+    .footer-copyright { font-size: 0.9rem; color: rgba(248, 215, 218, 0.7); margin-bottom: 8px; }
+    .footer-made { font-size: 0.85rem; color: rgba(248, 215, 218, 0.5); }
+
+    .back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background: var(--accent); color: #fff; border: none; border-radius: 50%; font-size: 1.2rem; cursor: pointer; opacity: 0; visibility: hidden; transition: all 0.3s; z-index: 999; }
+    .back-to-top.visible { opacity: 1; visibility: visible; }
+    .back-to-top:hover { transform: translateY(-5px); }
+
+    @media (max-width: 1024px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; gap: 50px; }
+      .hero-content { order: 2; }
+      .hero-desc { margin: 0 auto 35px; }
+      .hero-buttons { justify-content: center; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .about-inner { grid-template-columns: 1fr; gap: 50px; }
+      .about-image img { height: 450px; max-width: 400px; margin: 0 auto; }
+      .gallery-grid, .journal-grid, .contact-inner { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
+      .insta-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu { display: none; }
+      .hamburger { display: flex; }
+      .features-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+      .about-stats { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+      .stat-number { font-size: 2rem; }
+      .contact-form-wrapper { padding: 30px; }
+      .footer-top { flex-direction: column; gap: 25px; text-align: center; }
+      .spotify-card { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <div style="text-align: center;">
+      <div class="loader-circle"></div>
+      <p style="font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-top: 20px; color: var(--text);">Gleya</p>
+    </div>
+  </div>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <ul class="nav-menu">
+      <li><a href="#home" class="nav-link">Home</a></li>
+      <li><a href="#about" class="nav-link">About</a></li>
+      <li><a href="#gallery" class="nav-link">Gallery</a></li>
+      <li><a href="#journal" class="nav-link">Journal</a></li>
+      <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Navbar -->
+  <header class="navbar" id="navbar">
+    <div class="container">
+      <div class="navbar-inner">
+        <a href="#home" class="logo" id="navLogo">Gleya</a>
+        <ul class="nav-menu">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#gallery" class="nav-link">Gallery</a></li>
+          <li><a href="#journal" class="nav-link">Journal</a></li>
+          <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-right">
+          <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon" id="themeIcon"></i></button>
+          <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <div class="decor decor-1">
+      <svg width="80" height="80" viewBox="0 0 100 100"><circle cx="50" cy="50" r="10" fill="var(--accent)" opacity="0.7"/><ellipse cx="50" cy="30" rx="10" ry="18" fill="var(--primary)" opacity="0.6"/><ellipse cx="70" cy="50" rx="18" ry="10" fill="var(--primary)" opacity="0.6"/><ellipse cx="50" cy="70" rx="10" ry="18" fill="var(--primary)" opacity="0.6"/><ellipse cx="30" cy="50" rx="18" ry="10" fill="var(--primary)" opacity="0.6"/></svg>
+    </div>
+    <div class="decor decor-2">
+      <svg width="60" height="60" viewBox="0 0 100 100"><path d="M50 10 Q80 40 50 90 Q20 40 50 10" fill="var(--secondary)" opacity="0.7"/></svg>
+    </div>
+    <div class="container">
+      <div class="hero-inner">
+        <div class="hero-content">
+          <p class="hero-greeting">Hello, I'm</p>
+          <h1 class="hero-name" id="heroName">Gleya <span class="heart">&#9829;</span></h1>
+          <p class="hero-tagline" id="heroTagline">Creative soul - Photographer - Writer</p>
+          <p class="hero-desc" id="heroDesc">Sharing stories, moments, and inspirations through a soft and aesthetic space.</p>
+          <div class="hero-buttons">
+            <a href="#gallery" class="btn btn-primary"><i class="fas fa-compass"></i> Explore</a>
+            <a href="#contact" class="btn btn-secondary"><i class="fas fa-envelope"></i> Contact Me</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <div class="hero-img-wrapper">
+            <div class="hero-img-bg"></div>
+            <img id="heroImage" src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1200" alt="Gleya">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <p class="section-subtitle">What I Do</p>
+        <h2 class="section-title">My Creative Space</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-book-open"></i></div><h3 class="feature-title">Diary</h3><p class="feature-desc">Cerita dan pengalaman sehari-hari.</p></div>
+        <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-camera"></i></div><h3 class="feature-title">Photography</h3><p class="feature-desc">Momen indah yang tertangkap.</p></div>
+        <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-lightbulb"></i></div><h3 class="feature-title">Inspiration</h3><p class="feature-desc">Quotes dan inspirasi harian.</p></div>
+        <div class="feature-card reveal"><div class="feature-icon"><i class="fas fa-palette"></i></div><h3 class="feature-title">Creativity</h3><p class="feature-desc">Karya dan project personal.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-inner">
+        <div class="about-image reveal" style="position: relative;">
+          <img id="aboutImage" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200" alt="About">
+          <div class="about-decor"></div>
+        </div>
+        <div class="about-content reveal">
+          <p class="about-label">About Me</p>
+          <h2 class="about-title">A Creative Soul with a Passion for Storytelling</h2>
+          <p class="about-text">Hai, aku Gleya. Seorang creative enthusiast yang percaya bahwa setiap momen memiliki cerita untuk diceritakan.</p>
+          <p class="about-text">Melalui fotografi, tulisan, dan karya kreatif, aku ingin mengabadikan keindahan dalam hal-hal sederhana.</p>
+          <div class="about-stats">
+            <div class="stat-item"><p class="stat-number">20+</p><p class="stat-label">Projects</p></div>
+            <div class="stat-item"><p class="stat-number">15+</p><p class="stat-label">Articles</p></div>
+            <div class="stat-item"><p class="stat-number">5+</p><p class="stat-label">Years</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <div class="section-header reveal"><p class="section-subtitle">Gallery</p><h2 class="section-title">Captured Moments</h2></div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+  </section>
+
+  <!-- Journal -->
+  <section class="journal" id="journal">
+    <div class="container">
+      <div class="section-header reveal"><p class="section-subtitle">Journal</p><h2 class="section-title">Latest Stories</h2></div>
+      <div class="journal-grid" id="journalGrid"></div>
+    </div>
+  </section>
+
+  <!-- Portfolio -->
+  <section class="portfolio" id="portfolio">
+    <div class="container">
+      <div class="section-header reveal"><p class="section-subtitle">Portfolio</p><h2 class="section-title">Selected Works</h2></div>
+      <div class="portfolio-grid" id="portfolioGrid"></div>
+    </div>
+  </section>
+
+  <!-- Quote -->
+  <section class="quote-section">
+    <div class="quote-bg"></div>
+    <div class="container">
+      <div class="quote-card reveal">
+        <div class="quote-icon">"</div>
+        <p class="quote-text" id="quoteText">Collect beautiful moments.</p>
+        <p class="quote-author">- Gleya</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Spotify Section -->
+  <section class="spotify-section" id="playlist">
+    <div class="container">
+      <div class="spotify-header reveal">
+        <h2 class="spotify-title" id="spotifyTitle">My Playlist</h2>
+        <div class="spotify-divider"></div>
+        <p class="spotify-desc" id="spotifyDesc">A collection of songs that inspire my creative journey.</p>
+      </div>
+      
+      <div class="spotify-wrapper reveal">
+        <div class="spotify-card">
+          <div class="spotify-iframe-container">
+            <iframe 
+              id="spotifyIframe"
+              class="spotify-iframe"
+              style="border-radius:16px" 
+              src="https://open.spotify.com/embed/playlist/1zAnG5S8brr5wYEBYeMZ40?utm_source=generator&theme=1" 
+              width="100%" 
+              height="380" 
+              frameBorder="0" 
+              allowfullscreen="" 
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instagram -->
+  <section class="instagram-feed">
+    <div class="container">
+      <div class="section-header reveal"><p class="section-subtitle">Instagram</p><h2 class="section-title" id="instaTitle">@gleya</h2></div>
+      <div class="insta-grid" id="instaGrid"></div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-inner">
+        <div class="contact-info reveal">
+          <p class="about-label">Get in Touch</p>
+          <h2 class="contact-title">Let's Create Something Beautiful</h2>
+          <p class="contact-text">Punya ide atau project menarik? Saya selalu terbuka untuk kolaborasi.</p>
+          <div class="contact-details">
+            <div class="contact-item"><div class="contact-icon"><i class="fas fa-envelope"></i></div><div><h4>Email</h4><p id="contactEmail">hello@gleya.com</p></div></div>
+            <div class="contact-item"><div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div><div><h4>Location</h4><p id="contactLocation">Jakarta, Indonesia</p></div></div>
+            <div class="contact-item"><div class="contact-icon"><i class="fab fa-instagram"></i></div><div><h4>Instagram</h4><p id="contactInstagram">@gleya</p></div></div>
+            <div class="contact-item"><div class="contact-icon"><i class="fab fa-twitter"></i></div><div><h4>Twitter</h4><p id="contactTwitter">@gleya</p></div></div>
+          </div>
+        </div>
+        <div class="contact-form-wrapper reveal">
+          <form id="contactForm">
+            <div class="form-group"><label>Nama Lengkap</label><input type="text" class="form-control" placeholder="Nama Anda" required></div>
+            <div class="form-group"><label>Email</label><input type="email" class="form-control" placeholder="Email Anda" required></div>
+            <div class="form-group"><label>Pesan</label><textarea class="form-control" placeholder="Tulis pesan..." required></textarea></div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fas fa-paper-plane"></i> Kirim Pesan</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-top">
+        <a href="#home" class="footer-logo" id="footerLogo">Gleya</a>
+        <div class="footer-socials">
+          <a href="#" class="footer-social"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="footer-social"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="footer-social"><i class="fab fa-pinterest"></i></a>
+          <a href="#" class="footer-social"><i class="fab fa-dribbble"></i></a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copyright">Copyright 2025 <span id="footerCopyright">Gleya</span>. All rights reserved.</p>
+        <p class="footer-made">Made with love</p>
+      </div>
+    </div>
+  </footer>
+
+  <button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+
+  <script>
+    // ==========================
+    // CONFIG - Edit di sini
+    // ==========================
+    var CONFIG = {
+      name: "Gleya",
+      tagline: "Creative soul - Photographer - Writer",
+      description: "Sharing stories, moments, and inspirations through a soft and aesthetic space.",
+      profilePhoto: "https://files.catbox.moe/7wmi9y.jpg?w=1200",
+      aboutPhoto: "https://files.catbox.moe/9vkhno.jpg?w=1200",
+      email: "sheana349@gmail.com",
+      instagram: "@urlynaa.s",
+      twitter: "@nsky1125",
+      location: "Medan, Sumatera Utara ",
+      quote: "Don't be afraid to fail, because every failure brings a new lesson.",
+      galleryImages: [
+        "https://files.catbox.moe/1vgtei.jpg?w=800",
+        "https://files.catbox.moe/1vgtei.jpg?w=800",
+        "https://files.catbox.moe/lllahf.jpg?w=800",
+        "https://files.catbox.moe/1aszax.jpg?w=800",
+        "https://files.catbox.moe/lllahf.jpg?w=800",
+        "https://files.catbox.moe/5e9sfc.jpg?w=800"
+      ],
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?w=800",
+        "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=800",
+        "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800",
+        "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800"
+      ],
+      instagramFeed: [
+        "https://files.catbox.moe/05onu5.jpg?w=600",
+        "https://files.catbox.moe/ef25ot.jpg?w=600",
+        "https://files.catbox.moe/rmi3ut.jpg?w=600",
+        "https://files.catbox.moe/9gfd3d.jpg?w=600",
+        "https://files.catbox.moe/fhl1tm.jpg?w=600",
+        "https://files.catbox.moe/zjm0fl.jpg?w=600"
+      ],
+      
+      // SPOTIFY CONFIG
+      spotify: {
+        enabled: true,
+        title: "My Playlist",
+        description: "A collection of songs that inspire my creative journey.",
+        // Embed URL: https://open.spotify.com/embed/playlist/1zAnG5S8brr5wYEBYeMZ40
+        embedUrl: "https://open.spotify.com/embed/playlist/1zAnG5S8brr5wYEBYeMZ40"
+      }
+    };
+
+    var journalData = [
+      { title: "Finding Beauty in Simple Moments", date: "January 15, 2025", excerpt: "Sometimes the most beautiful things are found in the quietest moments...", image: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=600" },
+      { title: "My Favorite Creative Rituals", date: "January 8, 2025", excerpt: "Creativity needs space to breathe. Here are the rituals that help me...", image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?w=600" },
+      { title: "A Soft Life Journey", date: "December 28, 2024", excerpt: "Embracing a softer approach to life has transformed everything...", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600" }
+    ];
+
+    var portfolioData = [
+      { title: "Branding Design", category: "Visual Identity" },
+      { title: "Photography Collection", category: "Creative Work" },
+      { title: "Lifestyle Writing", category: "Content" },
+      { title: "Personal Illustration", category: "Artwork" }
+    ];
+
+    // GLOBALS
+    var isDarkMode = false;
+
+    // HELPERS
+    function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
+    function setHtml(id, html) { var el = document.getElementById(id); if (el) el.innerHTML = html; }
+    function setSrc(id, src) { var el = document.getElementById(id); if (el) el.src = src; }
+
+    // ==========================
+    // SPOTIFY THEME HANDLER
+    // ==========================
+    function updateSpotifyTheme() {
+      var iframe = document.getElementById('spotifyIframe');
+      if (!iframe || !CONFIG.spotify.enabled) return;
+      
+      // theme=0 = hitam/gelap, theme=1 = terang/putih
+      var theme = isDarkMode ? '0' : '1';
+      var url = CONFIG.spotify.embedUrl + '?utm_source=generator&theme=' + theme;
+      iframe.src = url;
+    }
+
+    function toggleTheme() {
+      isDarkMode = !isDarkMode;
+      document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+      var icon = document.getElementById('themeIcon');
+      if (icon) icon.className = isDarkMode ? 'fas fa-sun' : 'fas fa-moon';
+      try { localStorage.setItem('theme', isDarkMode ? 'dark' : 'light'); } catch(e) {}
+      
+      // Update Spotify theme
+      updateSpotifyTheme();
+    }
+
+    // RENDER
+    function renderGallery() {
+      var g = document.getElementById('galleryGrid'); if (!g) return;
+      var html = '';
+      for (var i = 0; i < CONFIG.galleryImages.length; i++) {
+        html += '<div class="gallery-item"><img src="' + CONFIG.galleryImages[i] + '" loading="lazy"><div class="gallery-overlay"><i class="fas fa-search-plus"></i></div></div>';
+      }
+      g.innerHTML = html;
+    }
+
+    function renderJournal() {
+      var g = document.getElementById('journalGrid'); if (!g) return;
+      var html = '';
+      for (var i = 0; i < journalData.length; i++) {
+        var item = journalData[i];
+        html += '<article class="journal-card"><div class="journal-image"><img src="' + item.image + '" loading="lazy"></div><div class="journal-content"><p class="journal-date">' + item.date + '</p><h3 class="journal-title">' + item.title + '</h3><p class="journal-excerpt">' + item.excerpt + '</p><a href="#" class="journal-link">Read More <i class="fas fa-arrow-right"></i></a></div></article>';
+      }
+      g.innerHTML = html;
+    }
+
+    function renderPortfolio() {
+      var g = document.getElementById('portfolioGrid'); if (!g) return;
+      var html = '';
+      for (var i = 0; i < CONFIG.portfolioImages.length; i++) {
+        var p = portfolioData[i];
+        html += '<div class="portfolio-item"><img src="' + CONFIG.portfolioImages[i] + '" loading="lazy"><div class="portfolio-info"><p class="portfolio-category">' + p.category + '</p><h3 class="portfolio-title">' + p.title + '</h3></div></div>';
+      }
+      g.innerHTML = html;
+    }
+
+    function renderInsta() {
+      var g = document.getElementById('instaGrid'); if (!g) return;
+      var html = '';
+      for (var i = 0; i < CONFIG.instagramFeed.length; i++) {
+        html += '<div class="insta-item"><img src="' + CONFIG.instagramFeed[i] + '" loading="lazy"><div class="insta-overlay"><i class="fab fa-instagram"></i></div></div>';
+      }
+      g.innerHTML = html;
+    }
+
+    function renderSpotify() {
+      if (!CONFIG.spotify.enabled) return;
+      
+      var titleEl = document.getElementById('spotifyTitle');
+      var descEl = document.getElementById('spotifyDesc');
+      
+      if (titleEl) titleEl.textContent = CONFIG.spotify.title;
+      if (descEl) descEl.textContent = CONFIG.spotify.description;
+      
+      // Set initial theme
+      updateSpotifyTheme();
+    }
+
+    function setupReveal() {
+      var items = document.querySelectorAll('.reveal');
+      var obs = new IntersectionObserver(function(entries) {
+        for (var i = 0; i < entries.length; i++) {
+          if (entries[i].isIntersecting) entries[i].target.classList.add('active');
+        }
+      }, { threshold: 0.1 });
+      for (var i = 0; i < items.length; i++) obs.observe(items[i]);
+    }
+
+    // INIT
+    window.onload = function() {
+      // Theme
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          isDarkMode = true;
+          document.documentElement.setAttribute('data-theme', 'dark');
+          var icon = document.getElementById('themeIcon');
+          if (icon) icon.className = 'fas fa-sun';
+        }
+      } catch(e) {}
+
+      // Content
+      setText('navLogo', CONFIG.name);
+      setHtml('heroName', CONFIG.name + ' <span class="heart">&#9829;</span>');
+      setText('heroTagline', CONFIG.tagline);
+      setText('heroDesc', CONFIG.description);
+      setSrc('heroImage', CONFIG.profilePhoto);
+      setSrc('aboutImage', CONFIG.aboutPhoto);
+      setText('quoteText', CONFIG.quote);
+      setText('instaTitle', CONFIG.instagram);
+      setText('contactEmail', CONFIG.email);
+      setText('contactLocation', CONFIG.location);
+      setText('contactInstagram', CONFIG.instagram);
+      setText('contactTwitter', CONFIG.twitter);
+      setText('footerLogo', CONFIG.name);
+      setText('footerCopyright', CONFIG.name);
+
+      // Render All
+      renderGallery();
+      renderJournal();
+      renderPortfolio();
+      renderInsta();
+      renderSpotify();
+      setupReveal();
+
+      // Events
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+      // Mobile
+      var ham = document.getElementById('hamburger');
+      var mMenu = document.getElementById('mobileMenu');
+      var mOver = document.getElementById('mobileOverlay');
+      ham.addEventListener('click', function() {
+        ham.classList.toggle('active');
+        mMenu.classList.toggle('active');
+        mOver.classList.toggle('active');
+      });
+      mOver.addEventListener('click', function() {
+        ham.classList.remove('active');
+        mMenu.classList.remove('active');
+        mOver.classList.remove('active');
+      });
+
+      // Scroll
+      window.addEventListener('scroll', function() {
+        var nav = document.getElementById('navbar');
+        var btn = document.getElementById('backToTop');
+        if (window.scrollY > 50) nav.classList.add('scrolled');
+        else nav.classList.remove('scrolled');
+        if (window.scrollY > 500) btn.classList.add('visible');
+        else btn.classList.remove('visible');
+      });
+
+      document.getElementById('backToTop').addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+
+      document.getElementById('contactForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        alert('Thank you for your message!');
+        this.reset();
+      });
+
+      // Hide loader
+      document.getElementById('loadingScreen').classList.add('hide');
+    };
+  </script>
+</body>
+</html>
